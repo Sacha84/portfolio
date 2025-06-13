@@ -401,50 +401,133 @@
             margin-bottom: 0;
         }
 
-        /* Project Cards */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        .project-card {
-            background: rgba(108, 117, 125, 0.15); /* Grayish translucent */
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Projects as messages */
+        .projects-message-container {
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Push content apart */
-            height: 100%; /* Ensure cards are same height in a grid */
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            animation: fadeInRise 0.5s ease-out forwards;
+            gap: 1.25rem; /* Space between message bubbles */
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05); /* Light translucent background for the whole container */
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto; /* Allow scrolling if many projects */
+        }
+
+        .project-message-item {
+            background: rgba(0, 122, 255, 0.2); /* Blueish transparent like chat bubbles */
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            animation: slideInMessage 0.4s ease-out forwards;
             opacity: 0;
             transform: translateY(10px);
         }
-        .project-card:nth-child(odd) { animation-delay: 0.1s; }
-        .project-card:nth-child(even) { animation-delay: 0.2s; }
-        @keyframes fadeInRise {
+        .project-message-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideInMessage {
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .project-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        }
-        .project-card h3 {
-            color: #6c757d; /* Gray for project titles */
-            margin-bottom: 1rem;
-            font-size: 1.4rem; /* Larger title */
-            position: relative;
+        .project-message-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff; /* White title */
+            margin-bottom: 0.75rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .project-card ul {
-            margin-top: 1rem;
+
+        .project-message-details {
+            list-style: none;
+            padding-left: 0;
             margin-bottom: 0;
+            color: #e0e0e0;
         }
+
+        .project-message-details li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .project-message-details li i {
+            position: absolute;
+            left: 0;
+            top: 0.2em;
+            color: #64e37d; /* A subtle green checkmark */
+        }
+
+        /* New styles for Education as mail */
+        .education-mail-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* Space between mail items */
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05); /* Light translucent background for the whole container */
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto; /* Allow scrolling if many entries */
+        }
+
+        .education-mail-item {
+            background: rgba(128, 128, 128, 0.15); /* Slightly darker gray for mail items */
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border */
+        }
+
+        .education-mail-item:hover {
+            transform: translateY(-3px);
+            background-color: rgba(128, 128, 128, 0.25);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .education-mail-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.4rem;
+        }
+
+        .education-mail-meta {
+            font-size: 0.85rem;
+            color: #d0d0d0;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .education-mail-meta i {
+            color: #00bcd4; /* Cyan for meta icons */
+        }
+
+        .education-mail-details {
+            font-size: 0.9rem;
+            color: #c0c0c0;
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .education-mail-details::before {
+            content: "\f05a"; /* fa-info-circle */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0.1em;
+            color: #00bcd4;
+        }
+
 
         .dock {
             position: absolute; /* Changed to absolute */
@@ -522,6 +605,7 @@
             cursor: pointer;
             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
             transition: transform 0.2s ease;
+            /* No background or glass effect on the item itself */
         }
         .desktop-icon-item:hover {
             transform: translateY(-5px) scale(1.05);
@@ -531,8 +615,9 @@
             height: 48px;
             object-fit: contain;
             margin-bottom: 4px;
-            border-radius: 0.5rem; /* Slightly rounded images */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            /* Removed border-radius and box-shadow to make it truly "no background" */
+            border-radius: 0; /* Ensures no rounded corners */
+            box-shadow: none; /* Removes any shadow effect */
         }
 
 
@@ -797,25 +882,14 @@
             },
             skills: {
                 technical: [
-                    "Procedural (C)", "Object (Java, Python)", "Logic (Prolog) Paradigms",
-                    "Object Analysis and Design (UML)",
-                    "Databases (MERISE, SQL/MySQL)",
-                    "Graphical Interface (JavaFx)",
-                    "Web Programming (HTML5, Javascript and PHP)",
-                    "Development Environments (Eclipse/IntelliJ)",
-                    "Operating Systems (Linux/Windows, Unix commands)",
-                    "Descriptive Statistics (clustering, R), Linear Optimization and Graphs",
-                    "Unit Testing (JUnit) and Software Verification",
-                    "Design Patterns",
-                    "Network Architecture",
-                    "Information System Security Governance",
-                    "Artificial Intelligence", "Machine Learning", "Datamining (decision trees, random forests, logistic regression, neural networks, R Packages)",
-                    "NLP (Natural Language Processing)",
-                    "Deep Learning",
-                    "Image Based Processing",
-                    "Logical Reasoning applied to IT",
-                    "Power BI",
-                    "Metaheuristic Optimization"
+                    "C", "Java", "Python", "Prolog", "HTML5", "Javascript", "PHP", "R", "Typescript",
+                    "UML (Object Analysis and Design)", "MERISE (Data Modeling)", "SQL", "MySQL", "JavaFx (Graphical Interface)",
+                    "Eclipse", "IntelliJ", "Linux/Windows (OS)", "Unix Commands", "JUnit (Unit Testing)", "Software Verification", "Design Patterns", "Docker",
+                    "Network Architecture", "Information System Security Governance",
+                    "Descriptive Statistics (Clustering, Regression)", "Linear Optimization", "Graphs", "Power BI",
+                    "Artificial Intelligence (AI)", "Machine Learning (ML)", "Datamining (Decision Trees, Random Forests, Logistic Regression, Neural Networks)", "R Packages (ML)", "NLP (Natural Language Processing)", "Deep Learning (DL)", "Image Based Processing", "Metaheuristic Optimization",
+                    "Google Cloud Platform (GCP)", "BigQuery", "Dataform", "Airflow", "Cloud Run", "Cloud Function", "Vertex AI",
+                    "Gemini (GenAI)", "OpenAI (GenAI)", "Mistral AI (GenAI)"
                 ],
                 linguistic: [
                     { lang: "English", level: "C1", icon: "fas fa-globe-americas" },
@@ -840,7 +914,12 @@
                     details: "Erasmus semester at University of Southern Denmark, Odense (2023)"
                 },
                 {
-                    degree: "Preparatory Classes (Physics Chemistry)",
+                    degree: "Erasmus Semester (Data and IA Specialization)",
+                    institution: "Southern Denmark University Odense",
+                    years: "2023",
+                },
+                {
+                    degree: "Classes préparatoires aux grandes écoles (Physics Chemistry)",
                     institution: "Lycée St Joseph Avignon",
                     years: "2019-2021"
                 },
@@ -925,13 +1004,13 @@
         const desktopIconsData = [
             {
                 name: "Finder",
-                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/884c8c0cc7a505ac50339c9552263524_B7DXS2NKpM.png", // Placeholder Finder icon
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/884c8c0cc7a505ac50339c9552263524_B7DXS2NKpM.png", // Finder icon
                 appType: "about", // Opens the About Me window
                 position: { top: "80px", left: "50px" }
             },
             {
                 name: "VS Code",
-                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/c9830893a4d9ba9ab12ffb7591e0079a_jzmnfn1AVy.png", // Placeholder VS Code icon
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/c9830893a4d9ba9ab12ffb7591e0079a_jzmnfn1AVy.png", // VS Code icon
                 appType: "skills", // Opens the Skills window
                 position: { top: "180px", left: "50px" }
             },
@@ -943,7 +1022,7 @@
             },
             {
                 name: "Trash",
-                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/0c8fd7da19979a71c397f82b7764f8df_lVRgezRq9O.png", // Placeholder trash icon
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/0c8fd7da19979a71c397f82b7764f8df_lVRgezRq9O.png", // Trash icon
                 appType: "trash", // Special handler for trash
                 position: { top: "calc(100% - 130px)", left: "50px" } // Position near bottom left
             }
@@ -1061,7 +1140,7 @@
                 iconDiv.style.left = iconData.position.left;
                 iconDiv.dataset.name = iconData.name; // For specific mobile styling if needed
                 iconDiv.innerHTML = `
-                    <img src="${iconData.iconUrl}" alt="${iconData.name}" class="w-12 h-12 object-contain mb-1 rounded-md transition-transform hover:scale-110">
+                    <img src="${iconData.iconUrl}" alt="${iconData.name}" class="w-12 h-12 object-contain mb-1">
                     <span class="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${iconData.name}</span>
                 `;
                 iconDiv.addEventListener('click', () => {
@@ -1150,15 +1229,46 @@
                     });
                     break;
                 case 'skills':
-                    contentDiv.innerHTML = `
-                        <div class="skill-category">
-                            <h3><i class="fas fa-tools"></i> Technical Skills</h3>
-                            <div class="skill-grid">
-                                ${cvData.skills.technical.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    const groupedTechnicalSkills = {
+                        "Programming Languages & Paradigms": [
+                            "C", "Java", "Python", "Prolog", "HTML5", "Javascript", "PHP", "R", "Typescript"
+                        ],
+                        "Data Science & Machine Learning": [
+                            "Descriptive Statistics (Clustering, Regression)", "Linear Optimization", "Graphs", "Power BI", "Artificial Intelligence (AI)", "Machine Learning (ML)", "Datamining (Decision Trees, Random Forests, Logistic Regression, Neural Networks)", "R Packages (ML)", "NLP (Natural Language Processing)", "Deep Learning (DL)", "Image Based Processing", "Metaheuristic Optimization"
+                        ],
+                                                "Cloud Platforms & MLOps (GCP)": [
+                            "Google Cloud Platform (GCP)", "BigQuery", "Dataform", "Airflow", "Cloud Run", "Cloud Function", "Vertex AI"
+                        ],
+                        "Generative AI Models": [
+                            "Gemini (GenAI)", "OpenAI (GenAI)", "Mistral AI (GenAI)"
+                        ],
+                        "Object-Oriented Design & Databases": [
+                            "UML (Object Analysis and Design)", "MERISE (Data Modeling)", "SQL", "MySQL", "JavaFx (Graphical Interface)"
+                        ],
+                        "Development Tools & Operations": [
+                            "Eclipse", "IntelliJ", "Linux/Windows (OS)", "Unix Commands", "JUnit (Unit Testing)", "Software Verification", "Design Patterns", "Docker"
+                        ],
+                        "Networking & Security": [
+                            "Network Architecture", "Information System Security Governance"
+                        ]
+                    };
+
+                    let skillsHtml = `<h2>Technical Skills</h2>`;
+                    for (const category in groupedTechnicalSkills) {
+                        skillsHtml += `
+                            <div class="skill-category mt-8">
+                                <h3><i class="fas fa-code-branch"></i> ${category}</h3>
+                                <div class="skill-grid">
+                                    ${groupedTechnicalSkills[category].map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                </div>
                             </div>
-                        </div>
-                        <div class="skill-category mt-8">
-                            <h3><i class="fas fa-globe"></i> Linguistic Skills</h3>
+                        `;
+                    }
+
+                    skillsHtml += `
+                        <div class="section-divider mt-8"></div>
+                        <h2 class="mt-8">Linguistic Skills</h2>
+                        <div class="skill-category">
                             ${cvData.skills.linguistic.map(lang => `
                                 <div class="language-item">
                                     <i class="${lang.icon}"></i>
@@ -1166,16 +1276,19 @@
                                 </div>
                             `).join('')}
                         </div>
-                        <div class="skill-category mt-8">
-                            <h3><i class="fas fa-hands-helping"></i> Soft Skills</h3>
+                        <div class="section-divider mt-8"></div>
+                        <h2 class="mt-8">Soft Skills</h2>
+                        <div class="skill-category">
                             <ul>
                                 ${cvData.skills.soft.map(skill => `<li><i class="fas fa-check icon"></i> <span class="item-text">${skill}</span></li>`).join('')}
                             </ul>
                         </div>
                     `;
+                    contentDiv.innerHTML = skillsHtml;
                     break;
                 case 'experience':
                     let experienceHtml = '<h2>Professional Experience</h2><div class="timeline-container">';
+                    // Only professional experience
                     cvData.experience.professional.forEach(exp => {
                         experienceHtml += `
                             <div class="timeline-item">
@@ -1190,45 +1303,33 @@
                             </div>
                         `;
                     });
-                    experienceHtml += '</div><h2 class="mt-8">Academic Experience</h2><div class="timeline-container">';
-                    cvData.experience.academic.forEach(exp => {
-                        experienceHtml += `
-                            <div class="timeline-item">
-                                <h3>${exp.title}</h3>
-                                <ul>
-                                    ${exp.description.map(desc => `<li><i class="fas fa-flask icon"></i> <span class="item-text">${desc}</span></li>`).join('')}
-                                </ul>
-                            </div>
-                        `;
-                    });
-                    experienceHtml += '</div>';
+                    experienceHtml += '</div>'; // Close timeline-container
                     contentDiv.innerHTML = experienceHtml;
                     break;
                 case 'education':
-                    let educationHtml = '<h2>Education</h2><div class="timeline-container">';
+                    let educationHtml = `<h2>Education</h2><div class="education-mail-container">`;
                     cvData.education.forEach(edu => {
                         educationHtml += `
-                            <div class="timeline-item">
-                                <h3>${edu.degree}</h3>
-                                <div class="timeline-meta">
-                                    <p><i class="fas fa-school"></i> ${edu.institution}</p>
-                                    <p><i class="fas fa-calendar-alt"></i> ${edu.years}</p>
-                                    ${edu.details ? `<p><i class="fas fa-info-circle"></i> ${edu.details}</p>` : ''}
-                                </div>
+                            <div class="education-mail-item">
+                                <h3 class="education-mail-title">${edu.degree}</h3>
+                                <p class="education-mail-meta">
+                                    <i class="fas fa-school"></i> ${edu.institution} <span class="ml-auto"><i class="fas fa-calendar-alt"></i> ${edu.years}</span>
+                                </p>
+                                ${edu.details ? `<p class="education-mail-details">${edu.details}</p>` : ''}
                             </div>
                         `;
                     });
                     educationHtml += '</div>';
                     contentDiv.innerHTML = educationHtml;
                     break;
-                case 'projects': // Using academic experience for 'projects' app
-                    let projectsHtml = '<h2>Academic Projects</h2><div class="projects-grid">';
+                case 'projects': // Using academic experience for 'projects' app, now with message style
+                    let projectsHtml = `<h2>Academic Projects</h2><div class="projects-message-container">`;
                     cvData.experience.academic.forEach(exp => {
                         projectsHtml += `
-                            <div class="project-card">
-                                <h3>${exp.title}</h3>
-                                <ul>
-                                    ${exp.description.map(desc => `<li><i class="fas fa-project-diagram icon"></i> <span class="item-text">${desc}</span></li>`).join('')}
+                            <div class="project-message-item">
+                                <h3 class="project-message-title">${exp.title}</h3>
+                                <ul class="project-message-details">
+                                    ${exp.description.map(desc => `<li><i class="fas fa-arrow-right"></i> <span class="item-text">${desc}</span></li>`).join('')}
                                 </ul>
                             </div>
                         `;
@@ -1410,16 +1511,50 @@
                     Email: ${cvData.contact.email}
                     LinkedIn: ${cvData.contact.linkedin}
                 `,
-                'ls skills': () => `
-                    Technical:
-                    ${cvData.skills.technical.map(s => `- ${s}`).join('\n')}
+                'ls skills': () => {
+                    const groupedSkillsOutput = [];
+                    const technicalSkills = {
+                        "Programming Languages & Paradigms": [
+                            "C", "Java", "Python", "Prolog", "HTML5", "Javascript", "PHP", "R", "Typescript"
+                        ],
+                        "Data Science & Machine Learning": [
+                            "Descriptive Statistics (Clustering, Regression)", "Linear Optimization", "Graphs", "Power BI", "Artificial Intelligence (AI)", "Machine Learning (ML)", "Datamining (Decision Trees, Random Forests, Logistic Regression, Neural Networks)", "R Packages (ML)", "NLP (Natural Language Processing)", "Deep Learning (DL)", "Image Based Processing", "Metaheuristic Optimization"
+                        ],
+                        "Cloud Platforms & MLOps (GCP)": [
+                            "Google Cloud Platform (GCP)", "BigQuery", "Dataform", "Airflow", "Cloud Run", "Cloud Function", "Vertex AI"
+                        ],
+                        "Generative AI Models": [
+                            "Gemini (GenAI)", "OpenAI (GenAI)", "Mistral AI (GenAI)"
+                        ],
+                        "Object-Oriented Design & Databases": [
+                            "UML (Object Analysis and Design)", "MERISE (Data Modeling)", "SQL", "MySQL", "JavaFx (Graphical Interface)"
+                        ],
+                        "Development Tools & Operations": [
+                            "Eclipse", "IntelliJ", "Linux/Windows (OS)", "Unix Commands", "JUnit (Unit Testing)", "Software Verification", "Design Patterns", "Docker"
+                        ],
+                        "Networking & Security": [
+                            "Network Architecture", "Information System Security Governance"
+                        ]
+                    };
 
-                    Linguistic:
-                    ${cvData.skills.linguistic.map(l => `- ${l.lang}: ${l.level}`).join('\n')}
-
-                    Soft Skills:
-                    ${cvData.skills.soft.map(s => `- ${s}`).join('\n')}
-                `,
+                    for (const category in technicalSkills) {
+                        groupedSkillsOutput.push(`<span style="color: #00bcd4;">${category}:</span>`);
+                        technicalSkills[category].forEach(skill => {
+                            groupedSkillsOutput.push(`- ${skill}`);
+                        });
+                        groupedSkillsOutput.push(''); // Add a blank line between categories
+                    }
+                    groupedSkillsOutput.push(`<span style="color: #00bcd4;">Linguistic:</span>`);
+                    cvData.skills.linguistic.forEach(lang => {
+                        groupedSkillsOutput.push(`- ${lang.lang}: ${lang.level}`);
+                    });
+                    groupedSkillsOutput.push('');
+                    groupedSkillsOutput.push(`<span style="color: #00bcd4;">Soft Skills:</span>`);
+                    cvData.skills.soft.forEach(skill => {
+                        groupedSkillsOutput.push(`- ${skill}`);
+                    });
+                    return groupedSkillsOutput.join('\n');
+                },
                 'cat education': () => `
                     ${cvData.education.map(edu =>
                         `Title: ${edu.degree}\nInstitution: ${edu.institution}\nYears: ${edu.years}${edu.details ? `\nDetails: ${edu.details}` : ''}`
@@ -1430,16 +1565,13 @@
                     ${cvData.experience.professional.map(exp =>
                         `Title: ${exp.title}\nCompany: ${exp.company} (${exp.years})\nDescription:\n  ${exp.description.map(d => `- ${d}`).join('\n  ')}`
                     ).join('\n\n')}
-
-                    Academic Experience:
-                    ${cvData.experience.academic.map(exp =>
-                        `Title: ${exp.title}\nDescription:\n  ${exp.description.map(d => `- ${d}`).join('\n  ')}`
-                    ).join('\n\n')}
                 `,
-                'ls projects': () => `
-                    Academic Projects:
-                    ${cvData.experience.academic.map(proj => `- ${proj.title}`).join('\n')}
-                `,
+                'ls projects': () => {
+                    if (cvData.experience.academic.length === 0) {
+                        return `No academic projects found.`;
+                    }
+                    return `Academic Projects:\n${cvData.experience.academic.map(proj => `- ${proj.title}`).join('\n')}`;
+                },
                 'neofetch': () => `
                     <span style="color: #a020f0;">             .-.</span>
                     <span style="color: #a020f0;">          .-.     .-.</span>
