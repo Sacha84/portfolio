@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sacha Leduc - Apple Glass OS26 Portfolio</title>
+    <title>Sacha Leduc</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome for icons -->
@@ -21,16 +21,16 @@
         }
 
         .desktop-background {
-            position: relative; /* Changed to relative to act as positioning context for the dock */
+            position: relative; /* Changed to relative to act as positioning context for the dock and desktop icons */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #2b3a4a 0%, #0d1217 100%); /* Subtle dark gradient */
-            background-size: cover;
-            background-position: center;
+            background-color: #1a1a1a; /* Fallback dark color */
+            background-size: cover; /* Important for JS images */
+            background-position: center; /* Important for JS images */
             z-index: 0;
-            transition: background-image 0.5s ease-in-out; /* Smooth transition for background changes */
+            transition: background 0.5s ease-in-out; /* Transition 'background' property for smooth changes */
             overflow: hidden; /* Ensure content within background doesn't overflow */
         }
 
@@ -509,6 +509,33 @@
             transform: translateY(0);
         }
 
+        /* Desktop Icon specific styles */
+        .desktop-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70px; /* Standard icon width */
+            text-align: center;
+            color: #ffffff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            transition: transform 0.2s ease;
+        }
+        .desktop-icon-item:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+        .desktop-icon-item img {
+            width: 48px; /* Icon image size */
+            height: 48px;
+            object-fit: contain;
+            margin-bottom: 4px;
+            border-radius: 0.5rem; /* Slightly rounded images */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+
         /* Terminal specific styles */
         .terminal-content {
             background-color: rgba(0, 0, 0, 0.8); /* Darker background for terminal */
@@ -520,8 +547,6 @@
             overflow-y: auto;
             white-space: pre-wrap; /* Preserve whitespace and wrap lines */
             flex-grow: 1;
-            /* border-bottom-left-radius: 1rem; */
-            /* border-bottom-right-radius: 1rem; */
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3); /* Inner shadow for depth */
         }
 
@@ -655,6 +680,21 @@
                 gap: 1rem;
                 grid-template-columns: 1fr; /* Stack projects on mobile */
             }
+
+            .desktop-icon-item {
+                width: 60px; /* Smaller icons on mobile */
+                font-size: 0.7rem;
+            }
+            .desktop-icon-item img {
+                width: 40px;
+                height: 40px;
+            }
+            .desktop-icon-item[data-name="Trash"] { /* Specific mobile positioning for trash */
+                bottom: 80px;
+                right: 20px;
+                left: unset; /* Override left */
+                top: unset; /* Override top */
+            }
         }
     </style>
 </head>
@@ -714,7 +754,7 @@
     </div>
 
     <!-- Window Templates (hidden by default, cloned and shown) -->
-    <div id="window-template" class="window hidden" style="width: 500px; height: 400px;">
+    <div id="window-template" class="window hidden" style="width: 620px; height: 500px;">
         <div class="window-header" style="-webkit-app-region: drag;">
             <div class="window-controls">
                 <div class="window-control-btn close" data-action="close"></div>
@@ -727,7 +767,7 @@
     </div>
 
     <!-- Terminal Window Template -->
-    <div id="terminal-template" class="window hidden" style="width: 600px; height: 450px;">
+    <div id="terminal-template" class="window hidden" style="width: 750px; height: 550px;">
         <div class="window-header" style="-webkit-app-region: drag;">
             <div class="window-controls">
                 <div class="window-control-btn close" data-action="close"></div>
@@ -752,7 +792,7 @@
             name: "Sacha Leduc",
             contact: {
                 phone: "+337 81 49 70 13",
-                email: "leducsacha@cy-tech.fr",
+                email: "sacha84800@gmail.com",
                 linkedin: "https://www.linkedin.com/in/sacha-leduc64"
             },
             skills: {
@@ -761,7 +801,7 @@
                     "Object Analysis and Design (UML)",
                     "Databases (MERISE, SQL/MySQL)",
                     "Graphical Interface (JavaFx)",
-                    "Web Programming (HTML5, Javascript, PHP)",
+                    "Web Programming (HTML5, Javascript and PHP)",
                     "Development Environments (Eclipse/IntelliJ)",
                     "Operating Systems (Linux/Windows, Unix commands)",
                     "Descriptive Statistics (clustering, R), Linear Optimization and Graphs",
@@ -813,6 +853,17 @@
             experience: {
                 professional: [
                     {
+                        title: "Alternance - Data Engineer / GenAI Developper",
+                        company: "Samsung Electronics France - Saint-Ouen",
+                        years: "2024-2025",
+                        description: [
+                            "Developed an internal chatbot based on Vertex AI, enhancing access to business processes and documentation for call center operational teams.",
+                            "Designed an intelligent customer chatbot integrating product recommendations, user assistance, and FAQ responses through Vertex AI.",
+                            "Created an AI-driven email subject line generator to enhance personalization and performance of CRM campaigns.",
+                            "Implemented an automated product title and description generation engine aimed at SEO optimization and improving shopping campaign performance."
+                        ]
+                    },
+                    {
                         title: "Alternance - Data Engineer",
                         company: "Euralis - Lescar",
                         years: "2023-2024",
@@ -855,7 +906,7 @@
             interests: [
                 "Cinema",
                 "Swimming",
-                "Bodybuilding",
+                "Gym",
                 "Artificial Intelligence (as a hobby)" // Already covered in skills, but emphasizing as interest
             ]
         };
@@ -870,81 +921,167 @@
             document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', options);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set up interval for updating time
-            updateTime();
-            setInterval(updateTime, 1000); // Update every second
+        // New data structure for desktop icons
+        const desktopIconsData = [
+            {
+                name: "Finder",
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/884c8c0cc7a505ac50339c9552263524_B7DXS2NKpM.png", // Placeholder Finder icon
+                appType: "about", // Opens the About Me window
+                position: { top: "80px", left: "50px" }
+            },
+            {
+                name: "VS Code",
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/c9830893a4d9ba9ab12ffb7591e0079a_jzmnfn1AVy.png", // Placeholder VS Code icon
+                appType: "skills", // Opens the Skills window
+                position: { top: "180px", left: "50px" }
+            },
+            {
+                name: "Projects",
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/603d0ef71252ee0d12081181dfd66041_FPDXUjhF0d.png", // Re-using existing project icon
+                appType: "projects",
+                position: { top: "280px", left: "50px" }
+            },
+            {
+                name: "Trash",
+                iconUrl: "https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/0c8fd7da19979a71c397f82b7764f8df_lVRgezRq9O.png", // Placeholder trash icon
+                appType: "trash", // Special handler for trash
+                position: { top: "calc(100% - 130px)", left: "50px" } // Position near bottom left
+            }
+        ];
 
-            const dockIcons = document.querySelectorAll('.dock-icon');
+
+        // Centralized function to open/bring to front a window
+        function openAppWindow(appType, appTitle) {
             const windowTemplate = document.getElementById('window-template');
             const terminalTemplate = document.getElementById('terminal-template');
-            const desktopBackground = document.querySelector('.desktop-background'); // Get the background element
 
-            // Default background image
-            const defaultBackground = 'linear-gradient(135deg, #2b3a4a 0%, #0d1217 100%)';
-            // Set initial background from CSS for first load, then JS will manage
-            // desktopBackground.style.background = defaultBackground; // Removed as it's set in CSS now
-            desktopBackground.style.backgroundImage = `url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-dark-wwdc-2020-1920x1080-1432.jpg')`;
+            // If window already exists, bring to front
+            if (windows[appType] && windows[appType].style.display !== 'none') {
+                bringWindowToFront(windows[appType]);
+                return;
+            }
+
+            let newWindow;
+            if (appType === 'terminal') {
+                newWindow = terminalTemplate.cloneNode(true);
+                newWindow.id = `window-${appType}`;
+                newWindow.querySelector('.window-title').textContent = appTitle;
+                setupTerminal(newWindow);
+            } else if (appType === 'trash') {
+                // Special handling for Trash - a simple message box
+                const messageBox = document.createElement('div');
+                messageBox.className = 'window animate-open';
+                messageBox.id = 'window-trash-message';
+                messageBox.style.width = '400px';
+                messageBox.style.height = '200px';
+                // Center the message box
+                messageBox.style.top = '50%';
+                messageBox.style.left = '50%';
+                messageBox.style.transform = 'translate(-50%, -50%)'; // For centering
+                messageBox.innerHTML = `
+                    <div class="window-header" style="-webkit-app-region: drag;">
+                        <div class="window-controls">
+                            <div class="window-control-btn close" data-action="close"></div>
+                            <div class="window-control-btn minimize" data-action="minimize"></div>
+                            <div class="window-control-btn maximize" data-action="maximize"></div>
+                        </div>
+                        <div class="window-title">Trash Can</div>
+                    </div>
+                    <div class="window-content">
+                        <p class="text-center text-lg mt-4">The trash can is currently empty. Nothing to delete!</p>
+                        <p class="text-center text-sm text-gray-400 mt-2">Maybe add some files first?</p>
+                    </div>
+                `;
+                document.body.appendChild(messageBox);
+                windows[appType] = messageBox; // Store reference
+                bringWindowToFront(messageBox);
+                setupWindowInteractions(messageBox); // Ensure message box is draggable/closable
+                return; // Exit after showing message box
+            }
+            else {
+                newWindow = windowTemplate.cloneNode(true);
+                newWindow.id = `window-${appType}`;
+                newWindow.querySelector('.window-title').textContent = appTitle;
+                populateWindowContent(newWindow, appType);
+            }
+
+            newWindow.classList.remove('hidden');
+            newWindow.classList.add('animate-open'); // Add animation class
+            document.body.appendChild(newWindow); // Append to body so it floats above desktop background
+            windows[appType] = newWindow; // Store reference
+
+            // Set initial position *after* appending to DOM so offsetWidth/Height are correct
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const windowWidth = newWindow.offsetWidth;
+            const windowHeight = newWindow.offsetHeight;
+
+            let initialLeft = (viewportWidth - windowWidth) / 2;
+            let initialTop = (viewportHeight - windowHeight) / 2 + 20; // Offset by menu bar height
+
+            // Stagger if multiple windows are open
+            const openWindowCount = Object.keys(windows).filter(key => windows[key].style.display !== 'none').length;
+            if (openWindowCount > 1) {
+                 initialLeft = (viewportWidth - windowWidth) / 2 + (openWindowCount * 20);
+                 initialTop = (viewportHeight - windowHeight) / 2 + (openWindowCount * 20) + 20;
+            }
+
+            // Clamp to viewport, respecting menu bar (2.5rem = 40px)
+            newWindow.style.left = `${Math.max(20, Math.min(initialLeft, viewportWidth - windowWidth - 20))}px`;
+            newWindow.style.top = `${Math.max(2.5 * 16 + 20, Math.min(initialTop, viewportHeight - windowHeight - 20))}px`;
+
+            bringWindowToFront(newWindow);
+            setupWindowInteractions(newWindow);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTime();
+            setInterval(updateTime, 1000);
+
+            const dockIcons = document.querySelectorAll('.dock-icon');
+            const desktopBackground = document.querySelector('.desktop-background');
+
+            // Set initial background image
+            desktopBackground.style.background = `url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-dark-wwdc-2020-1920x1080-1432.jpg') center/cover no-repeat`;
+
+            // Create container for desktop icons
+            const desktopIconsContainer = document.createElement('div');
+            desktopIconsContainer.id = 'desktop-icons-container';
+            // Use pointer-events-none to allow clicks to pass through to desktop if no icon is hit
+            desktopIconsContainer.className = 'absolute top-0 left-0 w-full h-full pointer-events-none';
+            desktopBackground.appendChild(desktopIconsContainer);
 
 
+            // Render desktop icons
+            desktopIconsData.forEach(iconData => {
+                const iconDiv = document.createElement('div');
+                // Use pointer-events-auto for the icon itself to be clickable
+                iconDiv.className = `desktop-icon-item absolute flex flex-col items-center cursor-pointer text-white text-xs pointer-events-auto`;
+                iconDiv.style.top = iconData.position.top;
+                iconDiv.style.left = iconData.position.left;
+                iconDiv.dataset.name = iconData.name; // For specific mobile styling if needed
+                iconDiv.innerHTML = `
+                    <img src="${iconData.iconUrl}" alt="${iconData.name}" class="w-12 h-12 object-contain mb-1 rounded-md transition-transform hover:scale-110">
+                    <span class="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${iconData.name}</span>
+                `;
+                iconDiv.addEventListener('click', () => {
+                    openAppWindow(iconData.appType, iconData.name);
+                });
+                desktopIconsContainer.appendChild(iconDiv);
+            });
+
+            // Update dockIcons.forEach to use openAppWindow
             dockIcons.forEach(icon => {
                 icon.addEventListener('click', () => {
                     const appType = icon.dataset.app;
                     const appTitle = icon.dataset.title;
-
-                    // If window already exists, bring to front
-                    if (windows[appType] && windows[appType].style.display !== 'none') {
-                        bringWindowToFront(windows[appType]);
-                        return;
-                    }
-
-                    let newWindow;
-                    if (appType === 'terminal') {
-                        newWindow = terminalTemplate.cloneNode(true);
-                        newWindow.id = `window-${appType}`;
-                        newWindow.querySelector('.window-title').textContent = appTitle;
-                        setupTerminal(newWindow); // Setup terminal specific logic
-                    } else {
-                        newWindow = windowTemplate.cloneNode(true);
-                        newWindow.id = `window-${appType}`;
-                        newWindow.querySelector('.window-title').textContent = appTitle;
-                        populateWindowContent(newWindow, appType);
-                    }
-
-                    newWindow.classList.remove('hidden');
-                    newWindow.classList.add('animate-open'); // Add animation class
-                    document.body.appendChild(newWindow);
-                    windows[appType] = newWindow; // Store reference
-
-                    // Set initial position *after* appending to DOM so offsetWidth/Height are correct
-                    const viewportWidth = window.innerWidth;
-                    const viewportHeight = window.innerHeight;
-                    const windowWidth = newWindow.offsetWidth;
-                    const windowHeight = newWindow.offsetHeight;
-
-                    let initialLeft = (viewportWidth - windowWidth) / 2;
-                    let initialTop = (viewportHeight - windowHeight) / 2 + 20; // Offset by menu bar height
-
-                    // Stagger if multiple windows are open
-                    const openWindowCount = Object.keys(windows).filter(key => windows[key].style.display !== 'none').length;
-                    if (openWindowCount > 1) {
-                         initialLeft = (viewportWidth - windowWidth) / 2 + (openWindowCount * 20);
-                         initialTop = (viewportHeight - windowHeight) / 2 + (openWindowCount * 20) + 20;
-                    }
-
-                    // Clamp to viewport, respecting menu bar (2.5rem = 40px)
-                    newWindow.style.left = `${Math.max(20, Math.min(initialLeft, viewportWidth - windowWidth - 20))}px`;
-                    newWindow.style.top = `${Math.max(2.5 * 16 + 20, Math.min(initialTop, viewportHeight - windowHeight - 20))}px`;
-
-                    bringWindowToFront(newWindow);
-                    setupWindowInteractions(newWindow);
+                    openAppWindow(appType, appTitle);
                 });
             });
 
             // Automatically open the terminal window on page load
             const terminalDockIcon = document.querySelector('.dock-icon[data-app="terminal"]');
             if (terminalDockIcon) {
-                // Delay slightly to ensure all DOM is rendered and basic setup is complete
                 setTimeout(() => {
                     terminalDockIcon.click();
                 }, 100);
@@ -953,13 +1090,13 @@
 
         function populateWindowContent(windowElement, appType) {
             const contentDiv = windowElement.querySelector('.window-content');
-            contentDiv.innerHTML = ''; // Clear existing content
+            contentDiv.innerHTML = '';
 
             switch (appType) {
                 case 'about':
                     contentDiv.innerHTML = `
                         <div class="about-section">
-                            <img src="https://placehold.co/120x120/007bff/ffffff?text=SA" alt="Sacha Leduc Profile" class="profile-image">
+                            <img src="https://media.licdn.com/dms/image/v2/D4E03AQEnaqsPJXYEIQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1718311431290?e=1755129600&v=beta&t=BUABnmUUF7uQbYS29VpVffqzhG_KF8OTmoYyVCxsavw" alt="Sacha Leduc Profile" class="profile-image">
                             <h2>${cvData.name}</h2>
                             <p class="mb-4">Welcome to my interactive portfolio!</p>
                             <p class="mb-4">I'm a passionate and driven IT professional with a strong focus on Artificial Intelligence and Data Engineering. Explore my skills, experience, and projects through this simulated desktop environment.</p>
@@ -1115,13 +1252,11 @@
             const closeBtn = windowElement.querySelector('.window-control-btn.close');
             const maximizeBtn = windowElement.querySelector('.window-control-btn.maximize');
             const minimizeBtn = windowElement.querySelector('.window-control-btn.minimize');
-            // The content variable is not directly used in this function for interaction logic
-            // const content = windowElement.querySelector('.window-content') || windowElement.querySelector('.terminal-content');
-
+            
             let isDragging = false;
             let offsetX, offsetY;
             let isMaximized = false;
-            let originalPosition = { left: '0px', top: '0px', width: '0px', height: '0px' }; // Initialize with string values
+            let originalPosition = { left: '0px', top: '0px', width: '0px', height: '0px' };
 
             // Bring to front on click
             windowElement.addEventListener('mousedown', () => {
@@ -1130,16 +1265,13 @@
 
             // Close button
             closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent drag from triggering
+                e.stopPropagation();
                 windowElement.style.display = 'none';
-                const appType = windowElement.id.replace('window-', '');
-                // No need to remove from 'windows' object if just hiding
             });
 
             // Minimize button
             minimizeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // A simple minimize is to hide the window
                 windowElement.style.display = 'none';
             });
 
@@ -1147,14 +1279,12 @@
             maximizeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (!isMaximized) {
-                    // Save original position and size
                     originalPosition = {
                         left: windowElement.style.left,
                         top: windowElement.style.top,
                         width: windowElement.style.width,
                         height: windowElement.style.height
                     };
-                    // Maximize
                     windowElement.style.transition = 'all 0.2s ease-out';
                     windowElement.style.left = '0px';
                     windowElement.style.top = '0px';
@@ -1165,7 +1295,6 @@
                     windowElement.style.maxHeight = '100vh';
                     isMaximized = true;
                 } else {
-                    // Restore
                     windowElement.style.transition = 'all 0.2s ease-out';
                     windowElement.style.left = originalPosition.left;
                     windowElement.style.top = originalPosition.top;
@@ -1177,25 +1306,22 @@
                     isMaximized = false;
                 }
                 setTimeout(() => {
-                    windowElement.style.transition = 'transform 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out'; // Restore transition
+                    windowElement.style.transition = 'transform 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out';
                 }, 200);
             });
 
 
             // Dragging functionality
             header.addEventListener('mousedown', (e) => {
-                // Only start dragging if not clicking controls and not maximized
                 if (e.target.classList.contains('window-control-btn') || isMaximized) {
                     return;
                 }
                 isDragging = true;
-                // Calculate offset relative to the element's current position
                 const rect = windowElement.getBoundingClientRect();
                 offsetX = e.clientX - rect.left;
                 offsetY = e.clientY - rect.top;
 
                 header.style.cursor = 'grabbing';
-                // Prevent text selection during drag
                 document.body.style.userSelect = 'none';
             });
 
@@ -1205,10 +1331,9 @@
                 let newX = e.clientX - offsetX;
                 let newY = e.clientY - offsetY;
 
-                // Boundary checks (adjusted for menu bar height)
-                const menuBarHeight = 2.5 * 16; // 2.5rem converted to pixels
+                const menuBarHeight = 2.5 * 16;
                 const minX = 0;
-                const minY = menuBarHeight; // Cannot drag above the menu bar
+                const minY = menuBarHeight;
                 const maxX = window.innerWidth - windowElement.offsetWidth;
                 const maxY = window.innerHeight - windowElement.offsetHeight;
 
@@ -1222,7 +1347,7 @@
             document.addEventListener('mouseup', () => {
                 isDragging = false;
                 header.style.cursor = 'grab';
-                document.body.style.userSelect = ''; // Re-enable text selection
+                document.body.style.userSelect = '';
             });
         }
 
@@ -1263,7 +1388,7 @@
             const commands = {
                 'help': () => `
                     <span style="color: #00bcd4;">Website Functionality:</span>
-                    - Click icons in the dock to open specific sections of Sacha's portfolio (About Me, Skills, Experience, Education, Academic Projects, Interests).
+                    - Click icons in the dock or on the desktop to open specific sections of Sacha's portfolio (About Me, Skills, Experience, Education, Academic Projects, Interests, Terminal).
                     - Drag windows by their header to move them around the desktop.
                     - Use the red (close), yellow (minimize), and green (maximize/restore) circles in the window header to manage windows.
                     - Click anywhere on a window to bring it to the front.
@@ -1405,53 +1530,62 @@ User's question: ${question}`;
                 }
             };
 
-            const executeCommand = async (command) => { // Made async to support chatbot
-                const parts = command.trim().split(' ');
+            const executeCommand = async (command) => {
+                const fullCommand = command.trim(); // Get the full command string
+                const parts = fullCommand.split(' ');
                 const mainCommand = parts[0];
                 const args = parts.slice(1).join(' ');
 
                 // Display user's command immediately
-                appendOutput(`${promptSpan.textContent} ${command}`, '#00ff00');
+                appendOutput(`${promptSpan.textContent} ${fullCommand}`, '#00ff00');
 
                 let output = '';
-                if (mainCommand in commands) {
-                    if (mainCommand === 'chat') {
-                        output = await commands['chat'](args); // Await chatbot response
-                    } else if (mainCommand === 'ls' && args === 'skills') {
-                        output = commands['ls skills']();
-                    } else if (mainCommand === 'cat' && (args === 'education' || args === 'experience')) {
-                        output = commands[`cat ${args}`]();
-                    } else if (mainCommand === 'ls' && args === 'projects') {
-                        output = commands['ls projects']();
-                    } else if (mainCommand === 'clear') {
-                        commands['clear'](); // Call clear function directly, no need to append output after clear
-                        return;
-                    }
-                    else {
-                        output = commands[mainCommand]();
-                    }
-                } else {
-                    output = `<span style="color: #ff3b30;">Command not found: ${command}</span>`;
+
+                // Check for multi-word commands first
+                if (fullCommand === 'ls skills') {
+                    output = commands['ls skills']();
+                } else if (fullCommand === 'cat education') {
+                    output = commands['cat education']();
+                } else if (fullCommand === 'cat experience') {
+                    output = commands['cat experience']();
+                } else if (fullCommand === 'ls projects') {
+                    output = commands['ls projects']();
                 }
+                // Then handle 'chat' which has dynamic arguments
+                else if (mainCommand === 'chat') {
+                    output = await commands['chat'](args);
+                }
+                // Then handle 'clear' which has unique rendering logic
+                else if (fullCommand === 'clear') {
+                    commands['clear']();
+                    return; // Exit here as output is handled directly
+                }
+                // Finally, handle single-word commands (help, whoami, neofetch)
+                else if (fullCommand in commands) {
+                    output = commands[fullCommand]();
+                }
+                else {
+                    output = `<span style="color: #ff3b30;">Command not found: ${fullCommand}</span>`;
+                }
+
                 if (output) {
                     appendOutput(output);
                 }
-                terminalOutput.scrollTop = terminalOutput.scrollHeight; // Scroll to bottom
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
             };
 
-            terminalInput.addEventListener('keydown', async (e) => { // Made async to support chatbot
+            terminalInput.addEventListener('keydown', async (e) => {
                 if (e.key === 'Enter') {
                     const command = terminalInput.value;
-                    terminalInput.value = ''; // Clear input
+                    terminalInput.value = '';
                     await executeCommand(command);
                 }
             });
 
-            // Focus terminal input when clicking anywhere in the terminal content
             terminalOutput.addEventListener('click', () => {
                 terminalInput.focus();
             });
-            terminalInput.focus(); // Focus on load
+            terminalInput.focus();
         }
     </script>
 </body>
