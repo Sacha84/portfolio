@@ -1,0 +1,819 @@
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling on the main body */
+            background-color: #1a1a1a; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .desktop-background {
+            position: relative; /* Changed to relative to act as positioning context for the dock and desktop icons */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a; /* Fallback dark color */
+            background-size: cover; /* Important for JS images */
+            background-position: center; /* Important for JS images */
+            z-index: 0;
+            transition: background 0.5s ease-in-out; /* Transition 'background' property for smooth changes */
+            overflow: hidden; /* Ensure content within background doesn't overflow */
+        }
+
+        /* Top Menu Bar */
+        .menu-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+        .menu-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .menu-bar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .menu-bar-icon {
+            color: #c0c0c0;
+        }
+
+        .window {
+            position: absolute; /* Positioned absolutely for drag-and-drop */
+            background: rgba(45, 55, 72, 0.6); /* Darker glass background */
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08); /* Stronger shadow, subtle border */
+            min-width: 300px;
+            min-height: 200px;
+            max-width: 90vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+            color: #e0e0e0; /* Light text color */
+            transition: transform 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out; /* Smooth transition for drag/drop */
+            z-index: 10; /* Default z-index */
+
+            /* Initial state for opening animation */
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .window.animate-open {
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .window-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05); /* Slightly lighter header for contrast */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: grab;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        .window-title {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            flex-grow: 1; /* Allow title to take available space */
+            text-align: center; /* Center the title */
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .window-control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
+            transition: background-color 0.2s ease;
+        }
+        .window-control-btn.close { background-color: #ff605c; }
+        .window-control-btn.minimize { background-color: #ffbd44; }
+        .window-control-btn.maximize { background-color: #00ca4e; }
+
+        .window-control-btn:hover.close { background-color: #ff3b30; }
+        .window-control-btn:hover.minimize { background-color: #ff9500; }
+        .window-control-btn:hover.maximize { background-color: #28cd41; }
+
+        .window-content {
+            padding: 1.5rem; /* Increased padding */
+            flex-grow: 1;
+            overflow-y: auto;
+            color: #c0c0c0; /* Lighter text for content */
+            font-size: 0.95rem; /* Slightly larger font size */
+            line-height: 1.7; /* Increased line height for readability */
+            background: linear-gradient(180deg, rgba(20, 25, 30, 0.1), rgba(20, 25, 30, 0.3)); /* Subtle inner gradient */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); /* Inner shadow for depth */
+        }
+
+        /* Enhanced Styling for content within window-content */
+        .window-content h2 {
+            font-size: 1.6rem; /* Larger headings */
+            font-weight: 700; /* Bolder headings */
+            color: #ffffff;
+            margin-bottom: 1.25rem; /* More space below headings */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            position: relative;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtle separator line */
+            padding-top: 1rem; /* Space above section title */
+        }
+        .window-content h2:first-of-type {
+            padding-top: 0; /* No top padding for the very first heading */
+            border-bottom: none; /* No border for the very first heading if not needed as separator */
+        }
+        .window-content h3 {
+            font-size: 1.25rem; /* Sub-headings */
+            font-weight: 600;
+            color: #e8e8e8;
+            margin-bottom: 0.5rem;
+        }
+        .window-content p {
+            margin-bottom: 1rem;
+        }
+        .window-content ul {
+            list-style: none; /* Remove default bullet */
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+        .window-content ul li {
+            position: relative;
+            padding-left: 1.8rem; /* More space for icon */
+            margin-bottom: 0.6rem; /* Space between list items */
+            display: flex; /* Use flexbox for alignment */
+            align-items: flex-start;
+        }
+        .window-content ul li .icon {
+            color: #00ca4e; /* Green icon color */
+            font-size: 1.1em;
+            position: absolute;
+            left: 0;
+            top: 0.2em; /* Adjust vertically */
+        }
+        .window-content ul li .item-text {
+            flex: 1; /* Allow text to take remaining space */
+        }
+        .window-content strong {
+            color: #ffffff; /* Make strong text stand out */
+        }
+        .window-content a {
+            color: #00bcd4; /* Cyan for links */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .window-content a:hover {
+            color: #007bff; /* Brighter blue on hover */
+            text-decoration: underline;
+        }
+        .window-content .section-divider {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08); /* Finer separator */
+        }
+
+        /* Specific styles for About Me section */
+        .about-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .about-section .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .about-section .profile-image:hover {
+            transform: scale(1.05);
+        }
+        .about-section h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            border-bottom: none;
+        }
+        .about-section p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+        .about-section .contact-info p {
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+
+        /* Styles for experience and education details */
+        .detail-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+        .detail-line i {
+            margin-right: 0.6rem;
+            color: #17a2b8; /* Blue-green for info icons */
+        }
+        .detail-line .text-sm {
+            flex-grow: 1;
+        }
+
+        /* Creative Design for Skills Section */
+        .skill-category {
+            margin-bottom: 2.5rem;
+        }
+        .skill-category h3 {
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .skill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .skill-tag {
+            background: rgba(0, 202, 78, 0.2); /* Greenish translucent */
+            color: #00ca4e;
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px; /* Pill shape */
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 202, 78, 0.3);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .skill-tag:hover {
+            background-color: rgba(0, 202, 78, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.8rem;
+            background: rgba(23, 162, 184, 0.1); /* Blueish translucent */
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .language-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .language-item i {
+            color: #17a2b8;
+            font-size: 1.3rem;
+        }
+        .language-text {
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+
+        /* Timeline for Experience & Education */
+        .timeline-container {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid rgba(255, 255, 255, 0.1); /* Vertical line */
+            margin-bottom: 2rem;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 1.25rem;
+            background: rgba(255, 193, 7, 0.1); /* Yellowish translucent */
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideInFromLeft 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .timeline-item:nth-child(even) {
+             animation: slideInFromRight 0.5s ease-out forwards;
+             transform: translateX(20px);
+        }
+        @keyframes slideInFromLeft {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInFromRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+
+        .timeline-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem; /* Position the dot on the timeline */
+            top: 1.5rem;
+            width: 14px;
+            height: 14px;
+            background-color: #ffc107; /* Yellow dot */
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+        .timeline-item h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: #ffc107; /* Yellow for titles */
+        }
+        .timeline-meta {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: #d0d0d0;
+        }
+        .timeline-meta p i {
+            margin-right: 0.5rem;
+            color: #17a2b8;
+        }
+        .timeline-item ul {
+            margin-top: 0.75rem;
+            margin-bottom: 0;
+        }
+
+        /* Projects as messages */
+        .projects-message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem; /* Space between message bubbles */
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05); /* Light translucent background for the whole container */
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto; /* Allow scrolling if many projects */
+        }
+
+        .project-message-item {
+            background: rgba(0, 122, 255, 0.2); /* Blueish transparent like chat bubbles */
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            animation: slideInMessage 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .project-message-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideInMessage {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .project-message-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff; /* White title */
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .project-message-details {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+            color: #e0e0e0;
+        }
+
+        .project-message-details li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .project-message-details li i {
+            position: absolute;
+            left: 0;
+            top: 0.2em;
+            color: #64e37d; /* A subtle green checkmark */
+        }
+
+        /* New styles for Education as mail */
+        .education-mail-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* Space between mail items */
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05); /* Light translucent background for the whole container */
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto; /* Allow scrolling if many entries */
+        }
+
+        .education-mail-item {
+            background: rgba(128, 128, 128, 0.15); /* Slightly darker gray for mail items */
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border */
+        }
+
+        .education-mail-item:hover {
+            transform: translateY(-3px);
+            background-color: rgba(128, 128, 128, 0.25);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .education-mail-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.4rem;
+        }
+
+        .education-mail-meta {
+            font-size: 0.85rem;
+            color: #d0d0d0;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .education-mail-meta i {
+            color: #00bcd4; /* Cyan for meta icons */
+        }
+
+        .education-mail-details {
+            font-size: 0.9rem;
+            color: #c0c0c0;
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .education-mail-details::before {
+            content: "\f05a"; /* fa-info-circle */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0.1em;
+            color: #00bcd4;
+        }
+
+        /* New styles for Interests (iTunes vibe) */
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .interest-card {
+            background: rgba(255, 255, 255, 0.1); /* Lighter glass for cards */
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .interest-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .interest-card i {
+            font-size: 3rem; /* Large icon */
+            color: #8be9fd; /* Bright blue for icons (like Apple Music branding) */
+            margin-bottom: 0.75rem;
+            text-shadow: 0 0 10px rgba(139, 233, 253, 0.5); /* Glowing effect */
+        }
+
+        .interest-card .interest-name {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 1.1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+
+        .dock {
+            position: absolute; /* Changed to absolute */
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.15); /* Lighter glass for dock */
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border-radius: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            gap: 1.25rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        .dock-icon {
+            width: 48px; /* Larger icons */
+            height: 48px;
+            border-radius: 0.75rem; /* Match window curvature */
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative; /* For the label */
+        }
+
+        .dock-icon:hover {
+            transform: translateY(-10px) scale(1.1); /* Pop effect on hover */
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dock-icon img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+
+        .dock-icon .label {
+            position: absolute;
+            bottom: -2.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            white-space: nowrap; /* Prevent label from wrapping */
+            pointer-events: none; /* Allow clicks to pass through */
+        }
+
+        .dock-icon:hover .label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Desktop Icon specific styles */
+        .desktop-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70px; /* Standard icon width */
+            text-align: center;
+            color: #ffffff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            transition: transform 0.2s ease;
+            /* No background or glass effect on the item itself */
+        }
+        .desktop-icon-item:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+        .desktop-icon-item img {
+            width: 48px; /* Icon image size */
+            height: 48px;
+            object-fit: contain;
+            margin-bottom: 4px;
+            /* Removed border-radius and box-shadow to make it truly "no background" */
+            border-radius: 0; /* Ensures no rounded corners */
+            box-shadow: none; /* Removes any shadow effect */
+        }
+
+
+        /* Terminal specific styles */
+        .terminal-content {
+            background-color: rgba(0, 0, 0, 0.8); /* Darker background for terminal */
+            color: #00ff00; /* Green text for terminal */
+            padding: 0.5rem 1rem;
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            overflow-y: auto;
+            white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+            flex-grow: 1;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3); /* Inner shadow for depth */
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom-left-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        .terminal-input-prompt {
+            color: #c0c0c0;
+            margin-right: 0.5rem;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #00ff00;
+            flex-grow: 1;
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .window-content::-webkit-scrollbar,
+        .terminal-content::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .window-content::-webkit-scrollbar-track,
+        .terminal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .window-content::-webkit-scrollbar-thumb,
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        .window-content::-webkit-scrollbar-thumb:hover,
+        .terminal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .menu-bar {
+                height: 2rem;
+                font-size: 0.75rem;
+                padding: 0 0.5rem;
+            }
+            .menu-bar-left, .menu-bar-right {
+                gap: 0.5rem;
+            }
+            .dock {
+                bottom: 0.75rem;
+                padding: 0.4rem 0.8rem;
+                gap: 0.6rem;
+            }
+            .dock-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 0.5rem;
+            }
+            .window {
+                min-width: unset;
+                width: 95vw;
+                height: calc(85vh - 2.5rem); /* Account for menu bar */
+                top: calc(7.5vh + 2.5rem) !important; /* Adjust initial top */
+                left: 2.5vw !important; /* Center windows on mobile */
+                transform: none !important; /* Disable initial transform on mobile */
+            }
+            .window-title {
+                font-size: 0.8rem;
+            }
+            .window-content, .terminal-content, .terminal-input {
+                font-size: 0.8rem;
+                padding: 1rem; /* Adjust padding for mobile */
+            }
+            .dock-icon .label {
+                font-size: 0.7rem;
+                bottom: -2rem;
+            }
+            .window-content h2 {
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
+            }
+            .window-content h3 {
+                font-size: 1.1rem;
+            }
+            .about-section .profile-image {
+                width: 90px;
+                height: 90px;
+            }
+            .about-section h2 {
+                font-size: 1.8rem;
+            }
+            .about-section p {
+                font-size: 1rem;
+            }
+            .skill-tag {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+            .language-item {
+                padding: 0.6rem;
+            }
+            .language-item i {
+                font-size: 1.1rem;
+            }
+            .timeline-item {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .timeline-item::before {
+                left: -2rem;
+                top: 1.2rem;
+                width: 10px;
+                height: 10px;
+            }
+            .projects-grid {
+                gap: 1rem;
+                grid-template-columns: 1fr; /* Stack projects on mobile */
+            }
+
+            .desktop-icon-item {
+                width: 60px; /* Smaller icons on mobile */
+                font-size: 0.7rem;
+            }
+            .desktop-icon-item img {
+                width: 40px;
+                height: 40px;
+            }
+            .desktop-icon-item[data-name="Trash"] { /* Specific mobile positioning for trash */
+                bottom: 80px;
+                right: 20px;
+                left: unset; /* Override left */
+                top: unset; /* Override top */
+            }
+        }
