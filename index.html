@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacha Leduc - Apple Glass OS26 Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling on the main body */
+            background-color: #1a1a1a; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .desktop-background {
+            position: relative; /* Changed to relative to act as positioning context for the dock */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2b3a4a 0%, #0d1217 100%); /* Subtle dark gradient */
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            transition: background-image 0.5s ease-in-out; /* Smooth transition for background changes */
+            overflow: hidden; /* Ensure content within background doesn't overflow */
+        }
+
+        /* Top Menu Bar */
+        .menu-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+        .menu-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .menu-bar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .menu-bar-icon {
+            color: #c0c0c0;
+        }
+
+        .window {
+            position: absolute; /* Positioned absolutely for drag-and-drop */
+            background: rgba(45, 55, 72, 0.6); /* Darker glass background */
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08); /* Stronger shadow, subtle border */
+            min-width: 300px;
+            min-height: 200px;
+            max-width: 90vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+            color: #e0e0e0; /* Light text color */
+            transition: transform 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out; /* Smooth transition for drag/drop */
+            z-index: 10; /* Default z-index */
+
+            /* Initial state for opening animation */
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .window.animate-open {
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .window-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05); /* Slightly lighter header for contrast */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: grab;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        .window-title {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            flex-grow: 1; /* Allow title to take available space */
+            text-align: center; /* Center the title */
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .window-control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
+            transition: background-color 0.2s ease;
+        }
+        .window-control-btn.close { background-color: #ff605c; }
+        .window-control-btn.minimize { background-color: #ffbd44; }
+        .window-control-btn.maximize { background-color: #00ca4e; }
+
+        .window-control-btn:hover.close { background-color: #ff3b30; }
+        .window-control-btn:hover.minimize { background-color: #ff9500; }
+        .window-control-btn:hover.maximize { background-color: #28cd41; }
+
+        .window-content {
+            padding: 1.5rem; /* Increased padding */
+            flex-grow: 1;
+            overflow-y: auto;
+            color: #c0c0c0; /* Lighter text for content */
+            font-size: 0.95rem; /* Slightly larger font size */
+            line-height: 1.7; /* Increased line height for readability */
+            background: linear-gradient(180deg, rgba(20, 25, 30, 0.1), rgba(20, 25, 30, 0.3)); /* Subtle inner gradient */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2); /* Inner shadow for depth */
+        }
+
+        /* Enhanced Styling for content within window-content */
+        .window-content h2 {
+            font-size: 1.6rem; /* Larger headings */
+            font-weight: 700; /* Bolder headings */
+            color: #ffffff;
+            margin-bottom: 1.25rem; /* More space below headings */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            position: relative;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtle separator line */
+            padding-top: 1rem; /* Space above section title */
+        }
+        .window-content h2:first-of-type {
+            padding-top: 0; /* No top padding for the very first heading */
+            border-bottom: none; /* No border for the very first heading if not needed as separator */
+        }
+        .window-content h3 {
+            font-size: 1.25rem; /* Sub-headings */
+            font-weight: 600;
+            color: #e8e8e8;
+            margin-bottom: 0.5rem;
+        }
+        .window-content p {
+            margin-bottom: 1rem;
+        }
+        .window-content ul {
+            list-style: none; /* Remove default bullet */
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+        .window-content ul li {
+            position: relative;
+            padding-left: 1.8rem; /* More space for icon */
+            margin-bottom: 0.6rem; /* Space between list items */
+            display: flex; /* Use flexbox for alignment */
+            align-items: flex-start;
+        }
+        .window-content ul li .icon {
+            color: #00ca4e; /* Green icon color */
+            font-size: 1.1em;
+            position: absolute;
+            left: 0;
+            top: 0.2em; /* Adjust vertically */
+        }
+        .window-content ul li .item-text {
+            flex: 1; /* Allow text to take remaining space */
+        }
+        .window-content strong {
+            color: #ffffff; /* Make strong text stand out */
+        }
+        .window-content a {
+            color: #00bcd4; /* Cyan for links */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .window-content a:hover {
+            color: #007bff; /* Brighter blue on hover */
+            text-decoration: underline;
+        }
+        .window-content .section-divider {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08); /* Finer separator */
+        }
+
+        /* Specific styles for About Me section */
+        .about-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .about-section .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .about-section .profile-image:hover {
+            transform: scale(1.05);
+        }
+        .about-section h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            border-bottom: none;
+        }
+        .about-section p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+        .about-section .contact-info p {
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+
+        /* Styles for experience and education details */
+        .detail-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+        .detail-line i {
+            margin-right: 0.6rem;
+            color: #17a2b8; /* Blue-green for info icons */
+        }
+        .detail-line .text-sm {
+            flex-grow: 1;
+        }
+
+        /* Creative Design for Skills Section */
+        .skill-category {
+            margin-bottom: 2.5rem;
+        }
+        .skill-category h3 {
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .skill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .skill-tag {
+            background: rgba(0, 202, 78, 0.2); /* Greenish translucent */
+            color: #00ca4e;
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px; /* Pill shape */
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 202, 78, 0.3);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .skill-tag:hover {
+            background-color: rgba(0, 202, 78, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.8rem;
+            background: rgba(23, 162, 184, 0.1); /* Blueish translucent */
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .language-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .language-item i {
+            color: #17a2b8;
+            font-size: 1.3rem;
+        }
+        .language-text {
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+
+        /* Timeline for Experience & Education */
+        .timeline-container {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid rgba(255, 255, 255, 0.1); /* Vertical line */
+            margin-bottom: 2rem;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 1.25rem;
+            background: rgba(255, 193, 7, 0.1); /* Yellowish translucent */
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideInFromLeft 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .timeline-item:nth-child(even) {
+             animation: slideInFromRight 0.5s ease-out forwards;
+             transform: translateX(20px);
+        }
+        @keyframes slideInFromLeft {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInFromRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+
+        .timeline-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem; /* Position the dot on the timeline */
+            top: 1.5rem;
+            width: 14px;
+            height: 14px;
+            background-color: #ffc107; /* Yellow dot */
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+        .timeline-item h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: #ffc107; /* Yellow for titles */
+        }
+        .timeline-meta {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: #d0d0d0;
+        }
+        .timeline-meta p i {
+            margin-right: 0.5rem;
+            color: #17a2b8;
+        }
+        .timeline-item ul {
+            margin-top: 0.75rem;
+            margin-bottom: 0;
+        }
+
+        /* Project Cards */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .project-card {
+            background: rgba(108, 117, 125, 0.15); /* Grayish translucent */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Push content apart */
+            height: 100%; /* Ensure cards are same height in a grid */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: fadeInRise 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .project-card:nth-child(odd) { animation-delay: 0.1s; }
+        .project-card:nth-child(even) { animation-delay: 0.2s; }
+        @keyframes fadeInRise {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        .project-card h3 {
+            color: #6c757d; /* Gray for project titles */
+            margin-bottom: 1rem;
+            font-size: 1.4rem; /* Larger title */
+            position: relative;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .project-card ul {
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+
+        .dock {
+            position: absolute; /* Changed to absolute */
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.15); /* Lighter glass for dock */
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border-radius: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            gap: 1.25rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        .dock-icon {
+            width: 48px; /* Larger icons */
+            height: 48px;
+            border-radius: 0.75rem; /* Match window curvature */
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative; /* For the label */
+        }
+
+        .dock-icon:hover {
+            transform: translateY(-10px) scale(1.1); /* Pop effect on hover */
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dock-icon img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+
+        .dock-icon .label {
+            position: absolute;
+            bottom: -2.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            white-space: nowrap; /* Prevent label from wrapping */
+            pointer-events: none; /* Allow clicks to pass through */
+        }
+
+        .dock-icon:hover .label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Terminal specific styles */
+        .terminal-content {
+            background-color: rgba(0, 0, 0, 0.8); /* Darker background for terminal */
+            color: #00ff00; /* Green text for terminal */
+            padding: 0.5rem 1rem;
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            overflow-y: auto;
+            white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+            flex-grow: 1;
+            /* border-bottom-left-radius: 1rem; */
+            /* border-bottom-right-radius: 1rem; */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3); /* Inner shadow for depth */
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom-left-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        .terminal-input-prompt {
+            color: #c0c0c0;
+            margin-right: 0.5rem;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #00ff00;
+            flex-grow: 1;
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .window-content::-webkit-scrollbar,
+        .terminal-content::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .window-content::-webkit-scrollbar-track,
+        .terminal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .window-content::-webkit-scrollbar-thumb,
+        .terminal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        .window-content::-webkit-scrollbar-thumb:hover,
+        .terminal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .menu-bar {
+                height: 2rem;
+                font-size: 0.75rem;
+                padding: 0 0.5rem;
+            }
+            .menu-bar-left, .menu-bar-right {
+                gap: 0.5rem;
+            }
+            .dock {
+                bottom: 0.75rem;
+                padding: 0.4rem 0.8rem;
+                gap: 0.6rem;
+            }
+            .dock-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 0.5rem;
+            }
+            .window {
+                min-width: unset;
+                width: 95vw;
+                height: calc(85vh - 2.5rem); /* Account for menu bar */
+                top: calc(7.5vh + 2.5rem) !important; /* Adjust initial top */
+                left: 2.5vw !important; /* Center windows on mobile */
+                transform: none !important; /* Disable initial transform on mobile */
+            }
+            .window-title {
+                font-size: 0.8rem;
+            }
+            .window-content, .terminal-content, .terminal-input {
+                font-size: 0.8rem;
+                padding: 1rem; /* Adjust padding for mobile */
+            }
+            .dock-icon .label {
+                font-size: 0.7rem;
+                bottom: -2rem;
+            }
+            .window-content h2 {
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
+            }
+            .window-content h3 {
+                font-size: 1.1rem;
+            }
+            .about-section .profile-image {
+                width: 90px;
+                height: 90px;
+            }
+            .about-section h2 {
+                font-size: 1.8rem;
+            }
+            .about-section p {
+                font-size: 1rem;
+            }
+            .skill-tag {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+            .language-item {
+                padding: 0.6rem;
+            }
+            .language-item i {
+                font-size: 1.1rem;
+            }
+            .timeline-item {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .timeline-item::before {
+                left: -2rem;
+                top: 1.2rem;
+                width: 10px;
+                height: 10px;
+            }
+            .projects-grid {
+                gap: 1rem;
+                grid-template-columns: 1fr; /* Stack projects on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop-background">
+        <!-- The dock is now inside the desktop-background -->
+        <div class="dock">
+            <div class="dock-icon" data-app="about" data-title="About Me">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/884c8c0cc7a505ac50339c9552263524_B7DXS2NKpM.png" alt="About Me">
+                <span class="label">About Me</span>
+            </div>
+            <div class="dock-icon" data-app="skills" data-title="Skills">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/c9830893a4d9ba9ab12ffb7591e0079a_jzmnfn1AVy.png" alt="Skills">
+                <span class="label">Skills</span>
+            </div>
+            <div class="dock-icon" data-app="experience" data-title="Experience">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/32424e3633935d1c9f1583872f20235b_AUICGFb7aC.png" alt="Experience">
+                <span class="label">Experience</span>
+            </div>
+            <div class="dock-icon" data-app="education" data-title="Education">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/0e273f7e1b0dd47cc1a7ff62ac974106_low_res_Google_Classroom.png" alt="Education">
+                <span class="label">Education</span>
+            </div>
+            <div class="dock-icon" data-app="projects" data-title="Academic Projects">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/603d0ef71252ee0d12081181dfd66041_FPDXUjhF0d.png" alt="Academic Projects">
+                <span class="label">Academic Projects</span>
+            </div>
+            <div class="dock-icon" data-app="interests" data-title="Interests">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/e0a7165ff6bc7a19a271e13b7705b190_tvuzyrdmPE.png" alt="Interests">
+                <span class="label">Interests</span>
+            </div>
+            <div class="dock-icon" data-app="terminal" data-title="Terminal">
+                <img src="https://parsefiles.back4app.com/JPaQcFfEEQ1ePBxbf6wvzkPMEqKYHhPYv8boI1Rc/4aef21aa2a547d46d3f4469fe42dea12_low_res_Terminal.png" alt="Terminal">
+                <span class="label">Terminal</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Menu Bar -->
+    <div class="menu-bar">
+        <div class="menu-bar-left">
+            <i class="fab fa-apple"></i>
+            <span>Finder</span>
+            <span>File</span>
+            <span>Edit</span>
+            <span>View</span>
+            <span>Go</span>
+            <span>Window</span>
+            <span>Help</span>
+        </div>
+        <div class="menu-bar-right">
+            <i class="fas fa-wifi menu-bar-icon"></i>
+            <i class="fas fa-battery-half menu-bar-icon"></i>
+            <i class="fas fa-search menu-bar-icon"></i>
+            <span id="current-time"></span>
+        </div>
+    </div>
+
+    <!-- Window Templates (hidden by default, cloned and shown) -->
+    <div id="window-template" class="window hidden" style="width: 500px; height: 400px;">
+        <div class="window-header" style="-webkit-app-region: drag;">
+            <div class="window-controls">
+                <div class="window-control-btn close" data-action="close"></div>
+                <div class="window-control-btn minimize" data-action="minimize"></div>
+                <div class="window-control-btn maximize" data-action="maximize"></div>
+            </div>
+            <div class="window-title"></div>
+        </div>
+        <div class="window-content"></div>
+    </div>
+
+    <!-- Terminal Window Template -->
+    <div id="terminal-template" class="window hidden" style="width: 600px; height: 450px;">
+        <div class="window-header" style="-webkit-app-region: drag;">
+            <div class="window-controls">
+                <div class="window-control-btn close" data-action="close"></div>
+                <div class="window-control-btn minimize" data-action="minimize"></div>
+                <div class="window-control-btn maximize" data-action="maximize"></div>
+            </div>
+            <div class="window-title">Terminal</div>
+        </div>
+        <div class="terminal-content">
+            <span style="color: #00ff00;">Welcome to Sacha's Portfolio Terminal.</span><br>
+            <span style="color: #00ff00;">Type 'help' to see available commands.</span><br>
+        </div>
+        <div class="terminal-input-line">
+            <span class="terminal-input-prompt">sacha@portfolio:~ $</span>
+            <input type="text" class="terminal-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+        </div>
+    </div>
+
+    <script>
+        // Data parsed from the CV
+        const cvData = {
+            name: "Sacha Leduc",
+            contact: {
+                phone: "+337 81 49 70 13",
+                email: "leducsacha@cy-tech.fr",
+                linkedin: "https://www.linkedin.com/in/sacha-leduc64"
+            },
+            skills: {
+                technical: [
+                    "Procedural (C)", "Object (Java, Python)", "Logic (Prolog) Paradigms",
+                    "Object Analysis and Design (UML)",
+                    "Databases (MERISE, SQL/MySQL)",
+                    "Graphical Interface (JavaFx)",
+                    "Web Programming (HTML5, Javascript, PHP)",
+                    "Development Environments (Eclipse/IntelliJ)",
+                    "Operating Systems (Linux/Windows, Unix commands)",
+                    "Descriptive Statistics (clustering, R), Linear Optimization and Graphs",
+                    "Unit Testing (JUnit) and Software Verification",
+                    "Design Patterns",
+                    "Network Architecture",
+                    "Information System Security Governance",
+                    "Artificial Intelligence", "Machine Learning", "Datamining (decision trees, random forests, logistic regression, neural networks, R Packages)",
+                    "NLP (Natural Language Processing)",
+                    "Deep Learning",
+                    "Image Based Processing",
+                    "Logical Reasoning applied to IT",
+                    "Power BI",
+                    "Metaheuristic Optimization"
+                ],
+                linguistic: [
+                    { lang: "English", level: "C1", icon: "fas fa-globe-americas" },
+                    { lang: "Spanish", level: "School level", icon: "fas fa-language" }
+                ],
+                soft: [
+                    "Organization/Teamwork",
+                    "Stress Management",
+                    "Active Listening"
+                ]
+            },
+            education: [
+                {
+                    degree: "Specialized Master IA Project Manager",
+                    institution: "Skema Business School Paris",
+                    years: "2024-2025"
+                },
+                {
+                    degree: "Computer Science Engineer Bac+3 to Bac+5 (AI specialization)",
+                    institution: "CY Tech Pau",
+                    years: "2021-2024",
+                    details: "Erasmus semester at University of Southern Denmark, Odense (2023)"
+                },
+                {
+                    degree: "Preparatory Classes (Physics Chemistry)",
+                    institution: "Lycée St Joseph Avignon",
+                    years: "2019-2021"
+                },
+                {
+                    degree: "Scientific Baccalaureate European Section",
+                    institution: "Lycée Alphonse Benoit",
+                    years: "2019"
+                }
+            ],
+            experience: {
+                professional: [
+                    {
+                        title: "Alternance - Data Engineer",
+                        company: "Euralis - Lescar",
+                        years: "2023-2024",
+                        description: [
+                            "Data project management on GCP (Google Cloud Platform)",
+                            "Benchmark Data Catalog application",
+                            "ETL (Extract, Transform, Load) manipulation"
+                        ]
+                    },
+                    {
+                        title: "1st year Programming Internship",
+                        company: "Silversmok - Lons",
+                        years: "2021",
+                        description: [
+                            "Typescript programming",
+                            "Docker server setup",
+                            "Web programming"
+                        ]
+                    }
+                ],
+                academic: [
+                    {
+                        title: "Data Battle 2024 - Second Place",
+                        description: [
+                            "Application of embedding to a business case",
+                            "Data cleaning",
+                            "Interface development"
+                        ]
+                    },
+                    {
+                        title: "Personal Supervised Initiative Work (TIPE)",
+                        description: [
+                            "Study of avalanche risks for preventive purposes",
+                            "Dynamic and numerical modeling of avalanches",
+                            "Study of the influence of paravalanche devices"
+                        ]
+                    }
+                ]
+            },
+            interests: [
+                "Cinema",
+                "Swimming",
+                "Bodybuilding",
+                "Artificial Intelligence (as a hobby)" // Already covered in skills, but emphasizing as interest
+            ]
+        };
+
+        let activeZIndex = 10;
+        let windows = {}; // Store references to open windows
+
+        // Function to update the time in the menu bar
+        function updateTime() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit' };
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', options);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up interval for updating time
+            updateTime();
+            setInterval(updateTime, 1000); // Update every second
+
+            const dockIcons = document.querySelectorAll('.dock-icon');
+            const windowTemplate = document.getElementById('window-template');
+            const terminalTemplate = document.getElementById('terminal-template');
+            const desktopBackground = document.querySelector('.desktop-background'); // Get the background element
+
+            // Default background image
+            const defaultBackground = 'linear-gradient(135deg, #2b3a4a 0%, #0d1217 100%)';
+            // Set initial background from CSS for first load, then JS will manage
+            // desktopBackground.style.background = defaultBackground; // Removed as it's set in CSS now
+            desktopBackground.style.backgroundImage = `url('https://4kwallpapers.com/images/wallpapers/macos-big-sur-apple-layers-fluidic-colorful-dark-wwdc-2020-1920x1080-1432.jpg')`;
+
+
+            dockIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const appType = icon.dataset.app;
+                    const appTitle = icon.dataset.title;
+
+                    // If window already exists, bring to front
+                    if (windows[appType] && windows[appType].style.display !== 'none') {
+                        bringWindowToFront(windows[appType]);
+                        return;
+                    }
+
+                    let newWindow;
+                    if (appType === 'terminal') {
+                        newWindow = terminalTemplate.cloneNode(true);
+                        newWindow.id = `window-${appType}`;
+                        newWindow.querySelector('.window-title').textContent = appTitle;
+                        setupTerminal(newWindow); // Setup terminal specific logic
+                    } else {
+                        newWindow = windowTemplate.cloneNode(true);
+                        newWindow.id = `window-${appType}`;
+                        newWindow.querySelector('.window-title').textContent = appTitle;
+                        populateWindowContent(newWindow, appType);
+                    }
+
+                    newWindow.classList.remove('hidden');
+                    newWindow.classList.add('animate-open'); // Add animation class
+                    document.body.appendChild(newWindow);
+                    windows[appType] = newWindow; // Store reference
+
+                    // Set initial position *after* appending to DOM so offsetWidth/Height are correct
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    const windowWidth = newWindow.offsetWidth;
+                    const windowHeight = newWindow.offsetHeight;
+
+                    let initialLeft = (viewportWidth - windowWidth) / 2;
+                    let initialTop = (viewportHeight - windowHeight) / 2 + 20; // Offset by menu bar height
+
+                    // Stagger if multiple windows are open
+                    const openWindowCount = Object.keys(windows).filter(key => windows[key].style.display !== 'none').length;
+                    if (openWindowCount > 1) {
+                         initialLeft = (viewportWidth - windowWidth) / 2 + (openWindowCount * 20);
+                         initialTop = (viewportHeight - windowHeight) / 2 + (openWindowCount * 20) + 20;
+                    }
+
+                    // Clamp to viewport, respecting menu bar (2.5rem = 40px)
+                    newWindow.style.left = `${Math.max(20, Math.min(initialLeft, viewportWidth - windowWidth - 20))}px`;
+                    newWindow.style.top = `${Math.max(2.5 * 16 + 20, Math.min(initialTop, viewportHeight - windowHeight - 20))}px`;
+
+                    bringWindowToFront(newWindow);
+                    setupWindowInteractions(newWindow);
+                });
+            });
+
+            // Automatically open the terminal window on page load
+            const terminalDockIcon = document.querySelector('.dock-icon[data-app="terminal"]');
+            if (terminalDockIcon) {
+                // Delay slightly to ensure all DOM is rendered and basic setup is complete
+                setTimeout(() => {
+                    terminalDockIcon.click();
+                }, 100);
+            }
+        });
+
+        function populateWindowContent(windowElement, appType) {
+            const contentDiv = windowElement.querySelector('.window-content');
+            contentDiv.innerHTML = ''; // Clear existing content
+
+            switch (appType) {
+                case 'about':
+                    contentDiv.innerHTML = `
+                        <div class="about-section">
+                            <img src="https://placehold.co/120x120/007bff/ffffff?text=SA" alt="Sacha Leduc Profile" class="profile-image">
+                            <h2>${cvData.name}</h2>
+                            <p class="mb-4">Welcome to my interactive portfolio!</p>
+                            <p class="mb-4">I'm a passionate and driven IT professional with a strong focus on Artificial Intelligence and Data Engineering. Explore my skills, experience, and projects through this simulated desktop environment.</p>
+                            <div class="contact-info">
+                                <p><i class="fas fa-phone-alt"></i> ${cvData.contact.phone}</p>
+                                <p><i class="fas fa-envelope"></i> <a href="mailto:${cvData.contact.email}">${cvData.contact.email}</a></p>
+                                <p><i class="fab fa-linkedin"></i> <a href="${cvData.contact.linkedin}" target="_blank">${cvData.contact.linkedin.replace('https://', '')}</a></p>
+                            </div>
+
+                            <div class="section-divider"></div>
+
+                            <h3 class="mb-4 text-white"><i class="fas fa-image"></i> Change Desktop Background</h3>
+                            <div class="flex flex-col md:flex-row items-center gap-2 w-full">
+                                <input type="text" id="background-url-input" placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+                                       class="flex-grow p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors">
+                                <button id="set-background-btn"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md
+                                               transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95">
+                                    Set Background
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">Paste a direct image URL (e.g., from Unsplash, Google Photos, etc.).</p>
+                            <button id="reset-background-btn"
+                                    class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-1.5 px-3 rounded-md text-sm
+                                           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95">
+                                Reset Background
+                            </button>
+                        </div>
+                    `;
+                    // Setup background change listeners after content is loaded
+                    const backgroundUrlInput = windowElement.querySelector('#background-url-input');
+                    const setBackgroundBtn = windowElement.querySelector('#set-background-btn');
+                    const resetBackgroundBtn = windowElement.querySelector('#reset-background-btn');
+                    const desktopBackground = document.querySelector('.desktop-background');
+
+                    const defaultBackground = 'linear-gradient(135deg, #2b3a4a 0%, #0d1217 100%)';
+
+                    setBackgroundBtn.addEventListener('click', () => {
+                        const imageUrl = backgroundUrlInput.value.trim();
+                        if (imageUrl) {
+                            desktopBackground.style.background = `url('${imageUrl}') center/cover no-repeat`; // Ensure cover and no-repeat
+                        } else {
+                            // Optionally, show a message if input is empty
+                            console.warn("Please enter a valid image URL.");
+                        }
+                    });
+
+                    resetBackgroundBtn.addEventListener('click', () => {
+                        desktopBackground.style.background = defaultBackground;
+                        backgroundUrlInput.value = ''; // Clear input field
+                    });
+                    break;
+                case 'skills':
+                    contentDiv.innerHTML = `
+                        <div class="skill-category">
+                            <h3><i class="fas fa-tools"></i> Technical Skills</h3>
+                            <div class="skill-grid">
+                                ${cvData.skills.technical.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="skill-category mt-8">
+                            <h3><i class="fas fa-globe"></i> Linguistic Skills</h3>
+                            ${cvData.skills.linguistic.map(lang => `
+                                <div class="language-item">
+                                    <i class="${lang.icon}"></i>
+                                    <span class="language-text"><strong>${lang.lang}:</strong> ${lang.level}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="skill-category mt-8">
+                            <h3><i class="fas fa-hands-helping"></i> Soft Skills</h3>
+                            <ul>
+                                ${cvData.skills.soft.map(skill => `<li><i class="fas fa-check icon"></i> <span class="item-text">${skill}</span></li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                case 'experience':
+                    let experienceHtml = '<h2>Professional Experience</h2><div class="timeline-container">';
+                    cvData.experience.professional.forEach(exp => {
+                        experienceHtml += `
+                            <div class="timeline-item">
+                                <h3>${exp.title}</h3>
+                                <div class="timeline-meta">
+                                    <p><i class="fas fa-building"></i> ${exp.company}</p>
+                                    <p><i class="fas fa-calendar-alt"></i> ${exp.years}</p>
+                                </div>
+                                <ul>
+                                    ${exp.description.map(desc => `<li><i class="fas fa-tasks icon"></i> <span class="item-text">${desc}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    });
+                    experienceHtml += '</div><h2 class="mt-8">Academic Experience</h2><div class="timeline-container">';
+                    cvData.experience.academic.forEach(exp => {
+                        experienceHtml += `
+                            <div class="timeline-item">
+                                <h3>${exp.title}</h3>
+                                <ul>
+                                    ${exp.description.map(desc => `<li><i class="fas fa-flask icon"></i> <span class="item-text">${desc}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    });
+                    experienceHtml += '</div>';
+                    contentDiv.innerHTML = experienceHtml;
+                    break;
+                case 'education':
+                    let educationHtml = '<h2>Education</h2><div class="timeline-container">';
+                    cvData.education.forEach(edu => {
+                        educationHtml += `
+                            <div class="timeline-item">
+                                <h3>${edu.degree}</h3>
+                                <div class="timeline-meta">
+                                    <p><i class="fas fa-school"></i> ${edu.institution}</p>
+                                    <p><i class="fas fa-calendar-alt"></i> ${edu.years}</p>
+                                    ${edu.details ? `<p><i class="fas fa-info-circle"></i> ${edu.details}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    educationHtml += '</div>';
+                    contentDiv.innerHTML = educationHtml;
+                    break;
+                case 'projects': // Using academic experience for 'projects' app
+                    let projectsHtml = '<h2>Academic Projects</h2><div class="projects-grid">';
+                    cvData.experience.academic.forEach(exp => {
+                        projectsHtml += `
+                            <div class="project-card">
+                                <h3>${exp.title}</h3>
+                                <ul>
+                                    ${exp.description.map(desc => `<li><i class="fas fa-project-diagram icon"></i> <span class="item-text">${desc}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    });
+                    projectsHtml += '</div>';
+                    contentDiv.innerHTML = projectsHtml;
+                    break;
+                case 'interests':
+                    contentDiv.innerHTML = `
+                        <h2>Interests</h2>
+                        <ul>
+                            ${cvData.interests.map(interest => `<li><i class="fas fa-heart icon"></i> <span class="item-text">${interest}</span></li>`).join('')}
+                        </ul>
+                    `;
+                    break;
+            }
+        }
+
+        function setupWindowInteractions(windowElement) {
+            const header = windowElement.querySelector('.window-header');
+            const closeBtn = windowElement.querySelector('.window-control-btn.close');
+            const maximizeBtn = windowElement.querySelector('.window-control-btn.maximize');
+            const minimizeBtn = windowElement.querySelector('.window-control-btn.minimize');
+            // The content variable is not directly used in this function for interaction logic
+            // const content = windowElement.querySelector('.window-content') || windowElement.querySelector('.terminal-content');
+
+            let isDragging = false;
+            let offsetX, offsetY;
+            let isMaximized = false;
+            let originalPosition = { left: '0px', top: '0px', width: '0px', height: '0px' }; // Initialize with string values
+
+            // Bring to front on click
+            windowElement.addEventListener('mousedown', () => {
+                bringWindowToFront(windowElement);
+            });
+
+            // Close button
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent drag from triggering
+                windowElement.style.display = 'none';
+                const appType = windowElement.id.replace('window-', '');
+                // No need to remove from 'windows' object if just hiding
+            });
+
+            // Minimize button
+            minimizeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // A simple minimize is to hide the window
+                windowElement.style.display = 'none';
+            });
+
+            // Maximize/Restore button
+            maximizeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!isMaximized) {
+                    // Save original position and size
+                    originalPosition = {
+                        left: windowElement.style.left,
+                        top: windowElement.style.top,
+                        width: windowElement.style.width,
+                        height: windowElement.style.height
+                    };
+                    // Maximize
+                    windowElement.style.transition = 'all 0.2s ease-out';
+                    windowElement.style.left = '0px';
+                    windowElement.style.top = '0px';
+                    windowElement.style.width = '100vw';
+                    windowElement.style.height = '100vh';
+                    windowElement.style.borderRadius = '0rem';
+                    windowElement.style.maxWidth = '100vw';
+                    windowElement.style.maxHeight = '100vh';
+                    isMaximized = true;
+                } else {
+                    // Restore
+                    windowElement.style.transition = 'all 0.2s ease-out';
+                    windowElement.style.left = originalPosition.left;
+                    windowElement.style.top = originalPosition.top;
+                    windowElement.style.width = originalPosition.width;
+                    windowElement.style.height = originalPosition.height;
+                    windowElement.style.borderRadius = '1rem';
+                    windowElement.style.maxWidth = '90vw';
+                    windowElement.style.maxHeight = '80vh';
+                    isMaximized = false;
+                }
+                setTimeout(() => {
+                    windowElement.style.transition = 'transform 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out'; // Restore transition
+                }, 200);
+            });
+
+
+            // Dragging functionality
+            header.addEventListener('mousedown', (e) => {
+                // Only start dragging if not clicking controls and not maximized
+                if (e.target.classList.contains('window-control-btn') || isMaximized) {
+                    return;
+                }
+                isDragging = true;
+                // Calculate offset relative to the element's current position
+                const rect = windowElement.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+
+                header.style.cursor = 'grabbing';
+                // Prevent text selection during drag
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                let newX = e.clientX - offsetX;
+                let newY = e.clientY - offsetY;
+
+                // Boundary checks (adjusted for menu bar height)
+                const menuBarHeight = 2.5 * 16; // 2.5rem converted to pixels
+                const minX = 0;
+                const minY = menuBarHeight; // Cannot drag above the menu bar
+                const maxX = window.innerWidth - windowElement.offsetWidth;
+                const maxY = window.innerHeight - windowElement.offsetHeight;
+
+                newX = Math.max(minX, Math.min(newX, maxX));
+                newY = Math.max(minY, Math.min(newY, maxY));
+
+                windowElement.style.left = `${newX}px`;
+                windowElement.style.top = `${newY}px`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                header.style.cursor = 'grab';
+                document.body.style.userSelect = ''; // Re-enable text selection
+            });
+        }
+
+        function bringWindowToFront(windowElement) {
+            activeZIndex++;
+            windowElement.style.zIndex = activeZIndex;
+        }
+
+        // Terminal specific logic
+        function setupTerminal(terminalWindow) {
+            const terminalOutput = terminalWindow.querySelector('.terminal-content');
+            const terminalInput = terminalWindow.querySelector('.terminal-input');
+            const promptSpan = terminalWindow.querySelector('.terminal-input-prompt');
+
+            // Function to append output to terminal
+            const appendOutput = (text, color = '#00ff00') => {
+                const div = document.createElement('div');
+                div.innerHTML = `<span style="color: ${color};">${text}</span>`;
+                terminalOutput.appendChild(div);
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            };
+
+            // Summarize CV data for the chatbot's context
+            const getCvSummaryForChatbot = () => {
+                let summary = `Sacha Leduc's CV Summary:\n`;
+                summary += `- Name: ${cvData.name}\n`;
+                summary += `- Contact: Phone: ${cvData.contact.phone}, Email: ${cvData.contact.email}, LinkedIn: ${cvData.contact.linkedin}\n`;
+                summary += `- Key Technical Skills: ${cvData.skills.technical.slice(0, 5).join(', ')}${cvData.skills.technical.length > 5 ? ', etc.' : ''}\n`;
+                summary += `- Linguistic Skills: ${cvData.skills.linguistic.map(l => `${l.lang} (${l.level})`).join(', ')}\n`;
+                summary += `- Soft Skills: ${cvData.skills.soft.join(', ')}\n`;
+                summary += `- Professional Experience: ${cvData.experience.professional.map(exp => `${exp.title} at ${exp.company} (${exp.years})`).join('; ')}\n`;
+                summary += `- Academic Experience: ${cvData.experience.academic.map(exp => `${exp.title}`).join('; ')}\n`;
+                summary += `- Education: ${cvData.education.map(edu => `${edu.degree} at ${edu.institution} (${edu.years})`).join('; ')}\n`;
+                summary += `- Interests: ${cvData.interests.join(', ')}\n`;
+                return summary;
+            };
+
+            const commands = {
+                'help': () => `
+                    <span style="color: #00bcd4;">Website Functionality:</span>
+                    - Click icons in the dock to open specific sections of Sacha's portfolio (About Me, Skills, Experience, Education, Academic Projects, Interests).
+                    - Drag windows by their header to move them around the desktop.
+                    - Use the red (close), yellow (minimize), and green (maximize/restore) circles in the window header to manage windows.
+                    - Click anywhere on a window to bring it to the front.
+                    - In the 'About Me' window, you can change the desktop background using an image URL.
+
+                    <span style="color: #00bcd4;">Terminal Commands:</span>
+                    - <span style="color: #00bcd4;">whoami</span>: Get Sacha's contact info.
+                    - <span style="color: #00bcd4;">ls skills</span>: List Sacha's technical, linguistic, and soft skills.
+                    - <span style="color: #00bcd4;">cat education</span>: Show Sacha's academic journey.
+                    - <span style="color: #00bcd4;">cat experience</span>: Show Sacha's professional and academic experiences.
+                    - <span style="color: #00bcd4;">ls projects</span>: List academic projects.
+                    - <span style="color: #00bcd4;">neofetch</span>: Display a system info-like overview of the portfolio.
+                    - <span style="color: #00bcd4;">chat [your question]</span>: Ask the AI chatbot a question about Sacha Leduc (e.g., "chat What programming languages does Sacha know?").
+                    - <span style="color: #00bcd4;">clear</span>: Clear the terminal output.
+                `,
+                'whoami': () => `
+                    Name: ${cvData.name}
+                    Phone: ${cvData.contact.phone}
+                    Email: ${cvData.contact.email}
+                    LinkedIn: ${cvData.contact.linkedin}
+                `,
+                'ls skills': () => `
+                    Technical:
+                    ${cvData.skills.technical.map(s => `- ${s}`).join('\n')}
+
+                    Linguistic:
+                    ${cvData.skills.linguistic.map(l => `- ${l.lang}: ${l.level}`).join('\n')}
+
+                    Soft Skills:
+                    ${cvData.skills.soft.map(s => `- ${s}`).join('\n')}
+                `,
+                'cat education': () => `
+                    ${cvData.education.map(edu =>
+                        `Title: ${edu.degree}\nInstitution: ${edu.institution}\nYears: ${edu.years}${edu.details ? `\nDetails: ${edu.details}` : ''}`
+                    ).join('\n\n')}
+                `,
+                'cat experience': () => `
+                    Professional Experience:
+                    ${cvData.experience.professional.map(exp =>
+                        `Title: ${exp.title}\nCompany: ${exp.company} (${exp.years})\nDescription:\n  ${exp.description.map(d => `- ${d}`).join('\n  ')}`
+                    ).join('\n\n')}
+
+                    Academic Experience:
+                    ${cvData.experience.academic.map(exp =>
+                        `Title: ${exp.title}\nDescription:\n  ${exp.description.map(d => `- ${d}`).join('\n  ')}`
+                    ).join('\n\n')}
+                `,
+                'ls projects': () => `
+                    Academic Projects:
+                    ${cvData.experience.academic.map(proj => `- ${proj.title}`).join('\n')}
+                `,
+                'neofetch': () => `
+                    <span style="color: #a020f0;">             .-.</span>
+                    <span style="color: #a020f0;">          .-.     .-.</span>
+                    <span style="color: #a020f0;">  -- .   .-.  -  .   .-.</span>
+                    <span style="color: #a020f0;">  -- .-. .-. .-. .-. .-. .-.</span>
+                    <span style="color: #a020f0;">      '     '     '     '</span>
+                    <span style="color: #a020f0;">    '   '   '   '   '   '</span>
+                    <span style="color: #a020f0;">    _.-.</span>
+                    <span style="color: #a020f0;">  _.-._  _.-._</span>
+                    <span style="color: #a020f0;"> '     ''     '</span>
+                    <span style="color: #a020f0;"> '     ''     '</span>
+                    <span style="color: #a020f0;">     '     '</span>
+                    <span style="color: #a020f0;">     '     '</span>
+                    <span style="color: #a020f0;">  _.-._.-._</span>
+                    <span style="color: #a020f0;"> '         '</span>
+                    <span style="color: #a020f0;"> '         '</span>
+                    <span style="color: #a020f0;">         '</span>
+                    <span style="color: #a020f0;">         '</span>
+
+                    <span style="color: #c0c0c0;">${cvData.name}@Portfolio</span>
+                    --------------------
+                    <span style="color: #00bcd4;">OS</span>: Apple Glass OS26 (Simulated)
+                    <span style="color: #00bcd4;">Host</span>: Sacha's Brain v1.0
+                    <span style="color: #00bcd4;">Kernel</span>: Human 6.0
+                    <span style="color: #00bcd4;">Uptime</span>: Since 2001
+                    <span style="color: #00bcd4;">Packages</span>: Python, Java, C, SQL, HTML5, JS, PHP, R, ML, AI, DL
+                    <span style="color: #00bcd4;">Shell</span>: bash (simulated)
+                    <span style="color: #00bcd4;">Resolution</span>: Highly Adaptive
+                    <span style="color: #00bcd4;">DE</span>: Custom Glass Desktop Environment
+                    <span style="color: #00bcd4;">Theme</span>: Dark Mode Glass
+                    <span style="color: #00bcd4;">Icons</span>: Custom Aesthetic
+                    <span style="color: #00bcd4;">Terminal</span>: PortfolioTerm
+                    <span style="color: #00bcd4;">CPU</span>: Human Intellect
+                    <span style="color: #00bcd4;">GPU</span>: Visionary Mind
+                    <span style="color: #00bcd4;">Memory</span>: Vast & Expanding
+                `,
+                'clear': () => {
+                    terminalOutput.innerHTML = '';
+                    return ''; // Don't print anything after clear
+                },
+                'chat': async (question) => {
+                    if (!question) {
+                        return `<span style="color: #ffbd44;">Usage: chat [your question]</span>`;
+                    }
+                    appendOutput(`Thinking...`, '#ffbd44'); // Loading indicator
+
+                    const chatHistory = [];
+                    const cvSummary = getCvSummaryForChatbot();
+                    const prompt = `You are a helpful chatbot providing information about Sacha Leduc based on the following CV data. Answer concisely and only use information explicitly provided. If information is not available, state that you do not have that information in the records.
+
+${cvSummary}
+
+User's question: ${question}`;
+
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+
+                        // Remove "Thinking..." message
+                        if (terminalOutput.lastChild && terminalOutput.lastChild.textContent.includes('Thinking...')) {
+                            terminalOutput.lastChild.remove();
+                        }
+
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const text = result.candidates[0].content.parts[0].text;
+                            return `<span style="color: #00bcd4;">Bot:</span> ${text}`;
+                        } else {
+                            return `<span style="color: #ff3b30;">Bot: Sorry, I couldn't get a response.</span>`;
+                        }
+                    } catch (error) {
+                        // Remove "Thinking..." message
+                        if (terminalOutput.lastChild && terminalOutput.lastChild.textContent.includes('Thinking...')) {
+                            terminalOutput.lastChild.remove();
+                        }
+                        return `<span style="color: #ff3b30;">Bot: An error occurred while contacting the AI. Please try again.</span>`;
+                    }
+                }
+            };
+
+            const executeCommand = async (command) => { // Made async to support chatbot
+                const parts = command.trim().split(' ');
+                const mainCommand = parts[0];
+                const args = parts.slice(1).join(' ');
+
+                // Display user's command immediately
+                appendOutput(`${promptSpan.textContent} ${command}`, '#00ff00');
+
+                let output = '';
+                if (mainCommand in commands) {
+                    if (mainCommand === 'chat') {
+                        output = await commands['chat'](args); // Await chatbot response
+                    } else if (mainCommand === 'ls' && args === 'skills') {
+                        output = commands['ls skills']();
+                    } else if (mainCommand === 'cat' && (args === 'education' || args === 'experience')) {
+                        output = commands[`cat ${args}`]();
+                    } else if (mainCommand === 'ls' && args === 'projects') {
+                        output = commands['ls projects']();
+                    } else if (mainCommand === 'clear') {
+                        commands['clear'](); // Call clear function directly, no need to append output after clear
+                        return;
+                    }
+                    else {
+                        output = commands[mainCommand]();
+                    }
+                } else {
+                    output = `<span style="color: #ff3b30;">Command not found: ${command}</span>`;
+                }
+                if (output) {
+                    appendOutput(output);
+                }
+                terminalOutput.scrollTop = terminalOutput.scrollHeight; // Scroll to bottom
+            };
+
+            terminalInput.addEventListener('keydown', async (e) => { // Made async to support chatbot
+                if (e.key === 'Enter') {
+                    const command = terminalInput.value;
+                    terminalInput.value = ''; // Clear input
+                    await executeCommand(command);
+                }
+            });
+
+            // Focus terminal input when clicking anywhere in the terminal content
+            terminalOutput.addEventListener('click', () => {
+                terminalInput.focus();
+            });
+            terminalInput.focus(); // Focus on load
+        }
+    </script>
+</body>
+</html>
