@@ -1620,21 +1620,24 @@
 
                     const chatHistory = [];
                     const cvSummary = getCvSummaryForChatbot();
-                    const prompt = `You are a helpful chatbot providing information about Sacha Leduc based on the following CV data. Answer concisely and only use information explicitly provided. If information is not available, state that you do not have that information in the records.
+                    const prompt = `You are Sacha's personal AI assistant. Your goal is to answer questions about Sacha based on the information provided in his portfolio. If a question is outside the scope of Sacha's professional or academic profile, politely state that you can only answer questions related to Sacha's portfolio. Do not invent information. Sacha is a passionate and results-oriented Data Engineer and AI specialist with a strong foundation in computer science. He thrives in collaborative environments, leveraging skills in teamwork and active listening. He is adept at managing stress and organizing work to meet deadlines. His professional experience includes a Data Engineer / GenAI Developer apprenticeship at Samsung Electronics France (2024-2025), a Data Engineer apprenticeship at Euralis (2023-2024), and a Programming Intern role at Silversmok (2022). His academic projects include 'Data Battle 2024 - 2nd Place' and 'TIPE: Avalanche Risk Study'. He holds a Master's Degree in AI Project Management from Skema Business School (2024-2025) and an Engineering Degree in Computer Science (AI Specialization) from CY Tech (2021-2024), which included an Erasmus semester at the University of Southern Denmark (2023). He also completed Preparatory Classes for Engineering Schools at Lycée St Joseph (2019-2021). His technical skills include: Languages (C, Java, Python, Prolog, SQL, HTML5, JS, PHP, R), AI & Machine Learning (NLP, Deep Learning, Scikit-learn, TensorFlow/Keras), Databases (MySQL, Merise, SQL), Dev Tools (Eclipse, IntelliJ, Git, Docker), Web Development (HTML5, JavaScript, PHP, JavaFX), Concepts (OOP, UML, Design Patterns, Network Architecture, JUnit, Power BI), Cloud Technologies (Google Cloud Platform (GCP) with VertexAI, Big Query, Dataform, Firebase, Cloud Run, Cloud Functions, Airflow), and Generative AI (GenAI) with OpenAI, MistralAI, Gemini. His contact email is sacha84800@gmail.com and phone is +33 7 81 49 70 13. His English level is C1 - Advanced (TOEIC: 900) and his Spanish level is B1 - Intermediate. Short response (100 caracters) you should sell Sacha through your answer
 
 ${cvSummary}
 
 User's question: ${question}`;
 
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    chatHistory.push({ role: "system", content: prompt });
+                    const payload = { model: "mistral-large-latest", messages: chatHistory };
+                    const apiKey = "vhhDaZzggNTZgnVLJI4YjEjZgJXj7jiH"; 
+                    const apiUrl = `https://api.mistral.ai/v1/chat/completions`;
 
                     try {
                         const response = await fetch(apiUrl, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${apiKey}`
+                            },
                             body: JSON.stringify(payload)
                         });
                         const result = await response.json();
@@ -1644,10 +1647,8 @@ User's question: ${question}`;
                             terminalOutput.lastChild.remove();
                         }
 
-                        if (result.candidates && result.candidates.length > 0 &&
-                            result.candidates[0].content && result.candidates[0].content.parts &&
-                            result.candidates[0].content.parts.length > 0) {
-                            const text = result.candidates[0].content.parts[0].text;
+                        if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+                            const text = result.choices[0].message.content;
                             return `<span style="color: #00bcd4;">Bot:</span> ${text}`;
                         } else {
                             return `<span style="color: #ff3b30;">Bot: Sorry, I couldn't get a response.</span>`;
